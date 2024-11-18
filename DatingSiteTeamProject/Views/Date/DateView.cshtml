@@ -1,0 +1,334 @@
+﻿@model DateViewModel
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "_DatingLayout";
+    int senderId = int.Parse(ViewBag.UserId);
+}
+
+<head>
+    <title>Dates and Heartbreaks</title>
+    <link rel="stylesheet" href="~/css/imageOverlay.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: lightpink;
+        }
+
+        .card, .special-border {
+            background-color: #F0F8FF;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .centered-title {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .special-border:hover {
+            transform: translateY(-5px);
+            background-color: #E6E6FA; 
+        }
+
+        .image {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        .profile-info li {
+            margin-bottom: 5px;
+        }
+
+        .btn-group .btn {
+            margin-right: 10px;
+        }
+
+        .business-image {
+            width: 100px;
+            height: auto;
+        }
+
+        .dark-border {
+            border: 2px solid #333; 
+            padding: 15px;
+            border-radius: 5px;
+            background-color: indianred; 
+        }
+
+        .search-results-heading {
+            margin-top: 30px; 
+        }
+    </style>
+</head>
+
+<div class="container mt-3">
+    <h2 class="centered-title">Date Requests<i class="bi bi-suit-heart-fill"></i></h2>
+    <div class="accordion" id="accordionDates">
+        <!-- Section for Incoming Date Requests -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    Incoming Requests
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionDates">
+                <div class="accordion-body">
+                    @foreach (AuthenicationModel userProfile in Model.ListOfIncomingDateRequests)
+                    {
+                        <div class="row special-border rounded align-items-center">
+                            <div class="col-md-6">
+                                <div class="card-body">
+                                    <h5 class="card-title">@userProfile.User.Name</h5>
+                                    <p class="card-text">@userProfile.Profile.Description</p>
+                                    <ul class="list-unstyled profile-info">
+                                        <li><i class="bi bi-geo-alt"></i> @userProfile.Profile.City, @userProfile.Profile.State</li>
+                                        <li><i class="bi bi-calendar"></i> Age: @userProfile.Profile.Age</li>
+                                        <li><i class="bi bi-heart"></i> Looking for: @userProfile.Profile.Commitment</li>
+                                        <li><i class="bi bi-briefcase"></i> Occupation: @userProfile.Profile.Occupation </li>
+                                        <li><i class="bi bi-mailbox"></i> Email: @userProfile.User.Email</li>
+                                        <li><i class="bi bi-suit-spade-fill"></i> Weight: @userProfile.Profile.Weight lbs</li>
+                                        <li><i class="bi bi-suit-club-fill"></i> Height: @userProfile.Profile.Height ft</li>
+
+                                    </ul>
+                                    <div class="btn-group">
+                                        <!-- ACCEPT Date button -->
+                                        <form asp-controller="Date" asp-action="RespondToDateRequest" method="PUT">
+                                            <input type="hidden" name="senderId" value="@senderId" />
+                                            <input type="hidden" name="recieverId" value="@userProfile.User.Id" />
+                                            <input type="hidden" name="response" value="ACCEPT" />
+                                            <button class="btn btn-sm btn-outline-danger" type="submit">
+                                                Accept Date <i class="bi bi-heart"></i>
+                                            </button>
+                                        </form>
+                                        <!-- DENY Date button -->
+                                        <form asp-controller="Date" asp-action="RespondToDateRequest" method="PUT">
+                                            <input type="hidden" name="senderId" value="@senderId" />
+                                            <input type="hidden" name="recieverId" value="@userProfile.User.Id" />
+                                            <input type="hidden" name="response" value="DENY" />
+                                            <button class="btn btn-sm btn-outline-secondary" type="submit">
+                                                Deny Date <i class="bi bi-slash-circle"></i>
+                                            </button>
+                                        </form>
+
+                                        <!-- IGNORE Date button -->
+                                        <form asp-controller="Date" asp-action="RespondToDateRequest" method="PUT">
+                                            <input type="hidden" name="senderId" value="@senderId" />
+                                            <input type="hidden" name="recieverId" value="@userProfile.User.Id" />
+                                            <input type="hidden" name="response" value="IGNORE" />
+                                            <button class="btn btn-sm btn-outline-secondary" type="submit">
+                                                Ignore Date <i class="bi bi-slash-circle"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <img src="@userProfile.Profile.PhotoUrl" class="img-fluid image" alt="Profile Image">
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Sections for Accepted Requests -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                    Accepted Requests
+                </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo" data-bs-parent="#accordionDates">
+                <div class="accordion-body">
+                    @foreach (AuthenicationModel userProfile in Model.ListOfAcceptedRequests)
+                    {
+                        <div class="row special-border rounded align-items-center">
+                            <div class="col-md-6">
+                                <div class="card-body">
+                                    <h5 class="card-title">@userProfile.User.Name</h5>
+                                    <p class="card-text">@userProfile.Profile.Description</p>
+                                    <ul class="list-unstyled profile-info">
+                                        <li><i class="bi bi-geo-alt"></i> @userProfile.Profile.City, @userProfile.Profile.State</li>
+                                        <li><i class="bi bi-calendar"></i> Age: @userProfile.Profile.Age</li>
+                                        <li><i class="bi bi-heart"></i> Looking for: @userProfile.Profile.Commitment</li>
+                                        <li><i class="bi bi-briefcase"></i> Occupation: @userProfile.Profile.Occupation </li>
+                                        <li><i class="bi bi-mailbox"></i> Email: @userProfile.User.Email</li>
+                                        <li><i class="bi bi-suit-spade-fill"></i> Weight: @userProfile.Profile.Weight lbs</li>
+                                        <li><i class="bi bi-suit-club-fill"></i> Height: @userProfile.Profile.Height ft</li>
+
+                                    </ul>
+                                    @{
+                                        if (!String.IsNullOrEmpty(userProfile.DateModel.DateDescription))
+                                        {
+                                            <h6>Current Details: </h6>
+                                            <ul class="list-unstyled profile-info">
+                                                <li> Date: @userProfile.DateModel.DayAndMonthOfDate</li>
+                                                <li> Time: @userProfile.DateModel.TimeOfDate</li>
+                                                <li> @userProfile.DateModel.DateDescription</li>
+                                                <li> @userProfile.DateModel.Location</li>
+                                            </ul>
+                                        }
+                                    }
+                                    <div>
+                                        <div class="dark-border">
+                                            <h6>Set Up Your Date With Yelp</h6>
+                                        <form asp-controller="Date" asp-action="SearchYelp" method="get" class="p-3">
+                                            <div class="mb-3">
+                                                <label for="term-@userProfile.User.Id" class="form-label">Search Term (Ex: Food or Sports):</label>
+                                                <input type="text" class="form-control" id="term-@userProfile.User.Id" name="term" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="location-@userProfile.User.Id" class="form-label">Location (Ex: Philadelphia or PHL):</label>
+                                                <input type="text" class="form-control" id="location-@userProfile.User.Id" name="location" required>
+                                            </div>
+                                            <input type="hidden" name="profileId" value="@userProfile.User.Id" />
+                                            <button type="submit" class="btn btn-primary">Search</button>
+                                        </form>
+                                        </div>
+                                        @if (TempData["SearchPerformed"] != null && (bool)TempData["SearchPerformed"])
+                                        {
+                                            @if (userProfile.SearchViewModel != null && userProfile.SearchViewModel.Response != null && userProfile.SearchViewModel.Response.Businesses.Any())
+                                            {
+                                                <h2 class="mb-4 search-results-heading">Search Results for "@userProfile.SearchViewModel.Term" in "@userProfile.SearchViewModel.Location"</h2>
+                                                <div class="list-group">
+                                                    @foreach (var business in userProfile.SearchViewModel.Response.Businesses)
+                                                    {
+                                                        <div class="list-group-item list-group-item-action flex-column align-items-start mb-3">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <div>
+                                                                    <h5 class="mb-1">@business.Name</h5>
+                                                                    <small>Rating: @business.Rating / 5</small>
+                                                                    @if (business.IsClosed)
+                                                                    {
+                                                                        <span class="badge bg-danger ms-2">Closed</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="badge bg-success ms-2">Open</span>
+                                                                    }
+                                                                </div>
+                                                                <div class="btn-group">
+                                                                    <a href="@business.Url" target="_blank" class="btn btn-info">View on Yelp</a>
+                                                                    <form method="post" asp-controller="Date" asp-action="SelectBusinessForDate">
+                                                                        <input type="hidden" name="BusinessName" value="@business.Name" />
+                                                                        <input type="hidden" name="BusinessAddress" value="@business.Location.Address1" />
+                                                                        <input type="hidden" name="BusinessCity" value="@business.Location.City" />
+                                                                        <input type="hidden" name="BusinessState" value="@business.Location.State" />
+                                                                        <input type="hidden" name="BusinessZipCode" value="@business.Location.ZipCode" />
+                                                                        <input type="hidden" name="profileId" value="@userProfile.User.Id" />
+                                                                        <button type="submit" class="btn btn-primary">Select for Date</button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                            <p class="mb-1">
+                                                                @business.Location.Address1, @business.Location.City, @business.Location.State @business.Location.ZipCode
+                                                            </p>
+                                                            <p><strong>Categories:</strong> @string.Join(", ", business.Categories.Select(c => c.Title))</p>
+                                                            @*                                                         <p><strong>Price:</strong> @business.Price</p>
+                                            *@                                                        <p><strong>Reviews:</strong> @business.ReviewCount</p>
+                                                            <img src="@business.ImageUrl" alt="Image of @business.Name" class="img-fluid business-image mb-2">
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="alert alert-warning" role="alert">
+                                                    No results found. Try different keywords or locations.
+                                                </div>
+                                            }
+                                        }
+                                        @*                                                 <a href="@business.Url" class="list-group-item list-group-item-action flex-column align-items-start" target="_blank">@*                                                 </a>
+                                    *@
+                                        <h6>Modify Date</h6>
+
+                                        <!-- PLAN DATE -->
+                                        <form asp-controller="Date" asp-action="ModifyDateRequest" method="PUT">
+                                            <input type="hidden" name="senderId" value="@senderId" />
+                                            <input type="hidden" name="recieverId" value="@userProfile.User.Id" />
+                                            <div class="form-group">
+                                                <label for="date">Select Date:</label>
+                                                <input type="date" id="date" name="dayAndMonthOfDate" class="form-control" required />
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="time">Select Time:</label>
+                                                <input type="time" id="time" name="time" class="form-control" required />
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="location">Address:</label>
+                                                <input type="text" id="location" name="location" class="form-control" value="@TempData["SelectedLocation"] " required />
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="description">Description (this is the business's name, add more details if you'd like):</label>
+                                                <textarea id="description" name="dateDescription" class="form-control" rows="2" required>@TempData["Description"]</textarea>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-primary" type="submit">
+                                                Modify Date <i class="bi bi-calendar-plus"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <img src="@userProfile.Profile.PhotoUrl" class="img-fluid image" alt="Profile Image">
+                            </div>
+                        </div>
+
+
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sections for Sent Requests -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+                    Sent Requests
+                </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse show" aria-labelledby="headingThree" data-bs-parent="#accordionDates">
+                <div class="accordion-body">
+                    @foreach (AuthenicationModel userProfile in Model.ListOfSentRequests)
+                    {
+                        <div class="row special-border rounded align-items-center">
+                            <div class="col-md-6">
+                                <div class="card-body">
+                                    <h5 class="card-title">@userProfile.User.Name</h5>
+                                    <p class="card-text">@userProfile.Profile.Description</p>
+                                    <ul class="list-unstyled profile-info">
+                                        <li><i class="bi bi-geo-alt"></i> @userProfile.Profile.City, @userProfile.Profile.State</li>
+                                        <li><i class="bi bi-calendar"></i> Age: @userProfile.Profile.Age</li>
+                                        <li><i class="bi bi-heart"></i> Looking for: @userProfile.Profile.Commitment</li>
+                                    </ul>
+                                    <div class="btn-group">
+                                        <!-- View Profile button -->
+                                         <form asp-controller="Profile" asp-action="ViewProfile" method="get">
+                                        <input type="hidden" name="profileId" value="@userProfile.User.Id" />
+                                        <button class="btn btn-sm btn-outline-secondary ml-2" name="btnViewProfile" type="submit" value="@userProfile.User.Id">
+                                            View Profile
+                                        </button>
+                                    </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <img src="@userProfile.Profile.PhotoUrl" class="img-fluid image" alt="Profile Image">
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
